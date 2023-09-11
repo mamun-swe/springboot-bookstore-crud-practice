@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.springboot.bookstore.model.Books;
 import com.springboot.bookstore.service.BooksService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/books")
 public class BookController {
@@ -33,7 +35,7 @@ public class BookController {
 
     /** Store new resource */
     @PostMapping()
-    ResponseEntity<Long> store(@RequestBody Books documents) {
+    ResponseEntity<Long> store(@Valid @RequestBody Books documents) {
         booksService.createBook(documents);
         return new ResponseEntity<Long>(documents.getId(), HttpStatus.CREATED);
     }
