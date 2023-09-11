@@ -42,6 +42,7 @@ public class BookController {
     @GetMapping("{id}")
     ResponseEntity<Books> show(@PathVariable("id") Long id) {
         Books data = booksService.getBookById(id);
+
         return new ResponseEntity<Books>(data, HttpStatus.OK);
     }
 

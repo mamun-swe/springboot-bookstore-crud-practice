@@ -13,7 +13,7 @@ public class Books {
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "category", nullable = false)
@@ -27,6 +27,9 @@ public class Books {
 
     @Column(name = "author", nullable = false)
     private String author;
+
+    @Column(name = "price", nullable = false)
+    private Long price;
 
     public Long getId() {
         return id;
@@ -66,5 +69,13 @@ public class Books {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public Long getPrice() {
+        return price;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
     }
 }
