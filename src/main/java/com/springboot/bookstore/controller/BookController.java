@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.springboot.bookstore.exception.ErrorResponse;
 import com.springboot.bookstore.model.Books;
 import com.springboot.bookstore.service.BooksService;
 
@@ -42,10 +43,14 @@ public class BookController {
 
     /** Display the specific resource */
     @GetMapping("{id}")
-    ResponseEntity<Books> show(@PathVariable("id") Long id) {
-        Books data = booksService.getBookById(id);
-
-        return new ResponseEntity<Books>(data, HttpStatus.OK);
+    ResponseEntity<?> show(@PathVariable("id") Long id) {
+        try {
+            Books bookData = booksService.getBookById(id);
+            return new ResponseEntity<Books>(bookData, HttpStatus.OK);
+        } catch (Exception e) {
+            ErrorResponse errorResponse = new ErrorResponse(false, "Book not found.");
+            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
+        }
     }
 
     /** Update specific resource */
