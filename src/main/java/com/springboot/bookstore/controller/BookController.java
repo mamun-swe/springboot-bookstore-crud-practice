@@ -1,6 +1,7 @@
 package com.springboot.bookstore.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.springboot.bookstore.exception.ErrorResponse;
+import com.springboot.bookstore.exception.SuccessResponse;
 import com.springboot.bookstore.model.Books;
 import com.springboot.bookstore.service.BooksService;
 
@@ -45,8 +47,13 @@ public class BookController {
     @GetMapping("{id}")
     ResponseEntity<?> show(@PathVariable("id") Long id) {
         try {
-            Books bookData = booksService.getBookById(id);
-            return new ResponseEntity<Books>(bookData, HttpStatus.OK);
+            Optional<Books> bookData = booksService.getBookById(id);
+            if (!bookData.isPresent()) {
+                ErrorResponse errorResponse = new ErrorResponse(false, "Book information.");
+                return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
+            }
+
+            return new ResponseEntity<Books>(bookData.get(), HttpStatus.OK);
         } catch (Exception e) {
             ErrorResponse errorResponse = new ErrorResponse(false, "Book not found.");
             return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
@@ -55,16 +62,37 @@ public class BookController {
 
     /** Update specific resource */
     @PutMapping("{id}")
-    ResponseEntity<String> update(@RequestBody Books documents, @PathVariable(name = "id", required = true) Long id) {
-        booksService.updateBook(documents, id);
-        return new ResponseEntity<String>("Book updated.", HttpStatus.OK);
+    ResponseEntity<?> update(@RequestBody Books documents, @PathVariable(name = "id", required = true) Long id) {
+        try {
+            /** Check book availability */
+            Optional<Books> bookData = booksService.getBookById(id);
+            if (!bookData.isPresent()) {
+                ErrorResponse errorResponse = new ErrorResponse(false, "Book not found.");
+                return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
+            }
+
+            booksService.updateBook(documents, id);
+            SuccessResponse successResponse = new SuccessResponse(true, "Book updated.");
+            return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            ErrorResponse errorResponse = new ErrorResponse(false, "Book not found.");
+            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
+        }
     }
 
     /** Destroy specific resource */
     @DeleteMapping("{id}")
-    ResponseEntity<String> destroy(@PathVariable(name = "id", required = true) Long id) {
+    ResponseEntity<?> destroy(@PathVariable(name = "id", required = true) Long id) {
+        /** Check book availability */
+        Optional<Books> bookData = booksService.getBookById(id);
+        if (!bookData.isPresent()) {
+            ErrorResponse errorResponse = new ErrorResponse(false, "Book not found.");
+            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+
         booksService.destroyBook(id);
-        return new ResponseEntity<String>("Book deleted.", HttpStatus.OK);
+        SuccessResponse successResponse = new SuccessResponse(true, "Book deleted.");
+        return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.OK);
     }
 
 }

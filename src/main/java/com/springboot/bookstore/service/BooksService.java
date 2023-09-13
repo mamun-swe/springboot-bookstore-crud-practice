@@ -2,6 +2,7 @@ package com.springboot.bookstore.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,8 +24,8 @@ public class BooksService {
     }
 
     /** getting a specific record by id */
-    public Books getBookById(Long id) {
-        return booksRepository.findById(id).get();
+    public Optional<Books> getBookById(Long id) {
+        return booksRepository.findById(id);
     }
 
     /** cerate a specific record */
