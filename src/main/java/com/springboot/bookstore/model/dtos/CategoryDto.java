@@ -1,12 +1,19 @@
 package com.springboot.bookstore.model.dtos;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class CategoryDto {
+    @NotBlank(message = "The name is required.")
     @NotEmpty(message = "The name is required.")
-    @Size(min = 2, message = "user name should have at least 2 characters")
+    @NotNull(message = "The name is required.")
     private String name;
+
+    @NotBlank(message = "The title is required.")
+    @NotEmpty(message = "The title is required.")
+    @NotNull(message = "The title is required.")
+    private String title;
 }

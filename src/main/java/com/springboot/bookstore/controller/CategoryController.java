@@ -45,17 +45,19 @@ public class CategoryController {
 
     /** Store new resource */
     @PostMapping()
-    ResponseEntity<Object> store(@Valid @RequestBody CategoryDto categoryDto) {
+    ResponseEntity<Object> store(@RequestBody @Valid CategoryDto categoryDto) {
         try {
-            /** Convert DTO to entity */
-            Category category = new Category();
-            category.setName(categoryDto.getName());
+            System.out.println(categoryDto.toString());
+            // /** Convert DTO to entity */
+            // Category category = new Category();
+            // category.setName(categoryDto.getName());
 
-            /** Sotre data */
-            this.categoryService.createCategory(category);
+            // /** Sotre data */
+            // this.categoryService.createCategory(category);
 
             return Response.Success(HttpStatus.CREATED, "Category created.");
         } catch (Exception e) {
+            System.out.println(e.getLocalizedMessage().toString());
             List<String> errorsList = Arrays.asList(e.getMessage());
             return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
         }

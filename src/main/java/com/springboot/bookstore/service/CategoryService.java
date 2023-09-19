@@ -31,8 +31,11 @@ public class CategoryService {
     }
 
     /** cerate a specific record */
-    public void createCategory(Category documents) {
-        this.categoryRepository.save(documents);
+    public void createCategory(CategoryDto documents) {
+        Category category = new Category();
+        category.setName(documents.getName());
+
+        this.categoryRepository.save(category);
     }
 
     /** update a specific record */
