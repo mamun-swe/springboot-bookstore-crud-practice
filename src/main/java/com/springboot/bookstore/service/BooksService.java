@@ -35,7 +35,9 @@ public class BooksService {
 
     /** update a specific record */
     public void updateBook(Books documents, Long id) {
-        booksRepository.save(documents);
+        Books books = booksRepository.findById(id).get();
+        books.setName(documents.getName());
+        booksRepository.save(books);
     }
 
     /** delete a specific record */

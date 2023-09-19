@@ -1,5 +1,6 @@
 package com.springboot.bookstore.controller;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,8 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.springboot.bookstore.exception.ErrorResponse;
-import com.springboot.bookstore.exception.SuccessResponse;
+import com.springboot.bookstore.exception.Response;
 import com.springboot.bookstore.model.Books;
 import com.springboot.bookstore.model.dtos.BooksDto;
 import com.springboot.bookstore.service.BooksService;
@@ -28,107 +28,94 @@ import jakarta.validation.Valid;
 public class BookController {
 
     @Autowired
-    BooksService booksService;
+    private BooksService booksService;
 
     /** Display the list of resources */
     @GetMapping()
-    ResponseEntity<SuccessResponse> index() {
-        List<Books> data = booksService.getAllBooks();
-        SuccessResponse successResponse = new SuccessResponse(true, "List of books.", data);
-        return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.OK);
+    ResponseEntity<Object> index() {
+        try {
+            List<Books> data = this.booksService.getAllBooks();
+
+            return Response.Success(HttpStatus.OK, "List of books.", data);
+        } catch (Exception e) {
+            List<String> errorsList = Arrays.asList(e.getMessage());
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
+        }
     }
 
     /** Store new resource */
     @PostMapping()
-    ResponseEntity<?> store(@Valid @RequestBody BooksDto booksDto) {
-        /** Convert Books DTO to entity */
-        Books books = new Books();
-        books.setName(booksDto.getName());
-        booksService.createBook(books);
+    ResponseEntity<Object> store(@Valid @RequestBody BooksDto booksDto) {
+        try {
+            /** Convert Books DTO to entity */
+            Books books = new Books();
+            books.setName(booksDto.getName());
 
-        /** convert response */
-        SuccessResponse successResponse = new SuccessResponse(null, null);
-        successResponse.setStatus(true);
-        successResponse.setMessage("Book created.");
+            /** Sotre data */
+            this.booksService.createBook(books);
 
-        return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.CREATED);
-        // try {
-        // /** Convert Books DTO to entity */
-        // Books books = new Books();
-        // books.setName(booksDto.getName());
-        // booksService.createBook(books);
-
-        // /** convert response */
-        // SuccessResponse successResponse = new SuccessResponse(null, null);
-        // successResponse.setStatus(true);
-        // successResponse.setMessage("Book created.");
-
-        // return new ResponseEntity<SuccessResponse>(successResponse,
-        // HttpStatus.CREATED);
-        // } catch (Exception e) {
-        // ErrorResponse errorResponse = new ErrorResponse(false, "Something going
-        // wrong.");
-        // return new ResponseEntity<ErrorResponse>(errorResponse,
-        // HttpStatus.INTERNAL_SERVER_ERROR);
-        // }
+            return Response.Success(HttpStatus.CREATED, "Book created.");
+        } catch (Exception e) {
+            List<String> errorsList = Arrays.asList(e.getMessage());
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
+        }
     }
 
     /** Display the specific resource */
     @GetMapping("{id}")
-    ResponseEntity<?> show(@PathVariable("id") Long id) {
+    ResponseEntity<Object> show(@PathVariable(name = "id", required = true) Long id) {
         try {
-            Optional<Books> bookData = booksService.getBookById(id);
+            Optional<Books> bookData = this.booksService.getBookById(id);
 
             /** handle null data response */
             if (!bookData.isPresent()) {
-                SuccessResponse successResponse = new SuccessResponse(false, "Book information.", null);
-
-                return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.NOT_FOUND);
+                List<String> errorsList = Arrays.asList("Book isn't available.");
+                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errorsList);
             }
 
             /** Handle present data response */
-            SuccessResponse successResponse = new SuccessResponse(true, "Book information.", bookData.get());
-
-            return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.OK);
+            return Response.Success(HttpStatus.OK, "Book information.", bookData.get());
         } catch (Exception e) {
-            ErrorResponse errorResponse = new ErrorResponse(false, "Book not found.", "Somethig going wrong.");
-            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
+            List<String> errorsList = Arrays.asList(e.getMessage());
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
         }
     }
 
     /** Update specific resource */
     @PutMapping("{id}")
-    ResponseEntity<?> update(@RequestBody Books documents, @PathVariable(name = "id", required = true) Long id) {
+    ResponseEntity<Object> update(@RequestBody Books documents, @PathVariable(name = "id", required = true) Long id) {
         try {
             /** Check book availability */
-            Optional<Books> bookData = booksService.getBookById(id);
+            Optional<Books> bookData = this.booksService.getBookById(id);
             if (!bookData.isPresent()) {
-                ErrorResponse errorResponse = new ErrorResponse(false, "Book not found.");
-                return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
+                List<String> errorsList = Arrays.asList("Book isn't available.");
+                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errorsList);
             }
 
-            booksService.updateBook(documents, id);
-            SuccessResponse successResponse = new SuccessResponse(true, "Book updated.");
-            return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.OK);
+            this.booksService.updateBook(documents, id);
+            return Response.Success(HttpStatus.OK, "Book updated.");
         } catch (Exception e) {
-            ErrorResponse errorResponse = new ErrorResponse(false, "Book not found.");
-            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
+            List<String> errorsList = Arrays.asList(e.getMessage());
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
         }
     }
 
     /** Destroy specific resource */
     @DeleteMapping("{id}")
-    ResponseEntity<?> destroy(@PathVariable(name = "id", required = true) Long id) {
-        /** Check book availability */
-        Optional<Books> bookData = booksService.getBookById(id);
-        if (!bookData.isPresent()) {
-            ErrorResponse errorResponse = new ErrorResponse(false, "Book not found.");
-            return new ResponseEntity<ErrorResponse>(errorResponse, HttpStatus.NOT_FOUND);
+    ResponseEntity<Object> destroy(@PathVariable(name = "id", required = true) Long id) {
+        try {
+            /** Check book availability */
+            Optional<Books> bookData = this.booksService.getBookById(id);
+            if (!bookData.isPresent()) {
+                List<String> errorsList = Arrays.asList("Book isn't available.");
+                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errorsList);
+            }
+
+            this.booksService.destroyBook(id);
+            return Response.Success(HttpStatus.OK, "Book deleted.");
+        } catch (Exception e) {
+            List<String> errorsList = Arrays.asList(e.getMessage());
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
         }
-
-        booksService.destroyBook(id);
-        SuccessResponse successResponse = new SuccessResponse(true, "Book deleted.");
-        return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.OK);
     }
-
 }
