@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
         });
 
         errorResponMap.put("status", HttpStatus.BAD_REQUEST);
-        errorResponMap.put("message", "Input field required.");
+        errorResponMap.put("message", "Validation required.");
         errorResponMap.put("errors", errors);
 
         return new ResponseEntity<Object>(errorResponMap, HttpStatus.BAD_REQUEST);

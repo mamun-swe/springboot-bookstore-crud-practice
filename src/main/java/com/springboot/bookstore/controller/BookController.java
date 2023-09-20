@@ -1,7 +1,8 @@
 package com.springboot.bookstore.controller;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +39,9 @@ public class BookController {
 
             return Response.Success(HttpStatus.OK, "List of books.", data);
         } catch (Exception e) {
-            List<String> errorsList = Arrays.asList(e.getMessage());
-            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
+            Map<String, String> errors = new HashMap<>();
+            errors.put("server", "Something going wrong.");
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
         }
     }
 
@@ -56,8 +58,9 @@ public class BookController {
 
             return Response.Success(HttpStatus.CREATED, "Book created.");
         } catch (Exception e) {
-            List<String> errorsList = Arrays.asList(e.getMessage());
-            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
+            Map<String, String> errors = new HashMap<>();
+            errors.put("server", "Something going wrong.");
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
         }
     }
 
@@ -69,34 +72,37 @@ public class BookController {
 
             /** handle null data response */
             if (!bookData.isPresent()) {
-                List<String> errorsList = Arrays.asList("Book isn't available.");
-                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errorsList);
+                return Response.Success(HttpStatus.OK, "Book information.", null);
             }
 
             /** Handle present data response */
             return Response.Success(HttpStatus.OK, "Book information.", bookData.get());
         } catch (Exception e) {
-            List<String> errorsList = Arrays.asList(e.getMessage());
-            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
+            Map<String, String> errors = new HashMap<>();
+            errors.put("server", "Something going wrong.");
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
         }
     }
 
     /** Update specific resource */
     @PutMapping("{id}")
-    ResponseEntity<Object> update(@RequestBody Books documents, @PathVariable(name = "id", required = true) Long id) {
+    ResponseEntity<Object> update(@Valid @RequestBody BooksDto documents,
+            @PathVariable(name = "id", required = true) Long id) {
         try {
             /** Check book availability */
             Optional<Books> bookData = this.booksService.getBookById(id);
             if (!bookData.isPresent()) {
-                List<String> errorsList = Arrays.asList("Book isn't available.");
-                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errorsList);
+                Map<String, String> errors = new HashMap<>();
+                errors.put("id", "Book isn't available.");
+                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errors);
             }
 
             this.booksService.updateBook(documents, id);
             return Response.Success(HttpStatus.OK, "Book updated.");
         } catch (Exception e) {
-            List<String> errorsList = Arrays.asList(e.getMessage());
-            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
+            Map<String, String> errors = new HashMap<>();
+            errors.put("server", "Something going wrong.");
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
         }
     }
 
@@ -107,15 +113,17 @@ public class BookController {
             /** Check book availability */
             Optional<Books> bookData = this.booksService.getBookById(id);
             if (!bookData.isPresent()) {
-                List<String> errorsList = Arrays.asList("Book isn't available.");
-                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errorsList);
+                Map<String, String> errors = new HashMap<>();
+                errors.put("id", "Book isn't available.");
+                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errors);
             }
 
             this.booksService.destroyBook(id);
             return Response.Success(HttpStatus.OK, "Book deleted.");
         } catch (Exception e) {
-            List<String> errorsList = Arrays.asList(e.getMessage());
-            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
+            Map<String, String> errors = new HashMap<>();
+            errors.put("server", "Something going wrong.");
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
         }
     }
 }

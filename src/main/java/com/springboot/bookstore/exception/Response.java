@@ -1,7 +1,6 @@
 package com.springboot.bookstore.exception;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -29,11 +28,17 @@ public class Response {
     }
 
     /** Error response with status, message & errors */
-    public static ResponseEntity<Object> Error(HttpStatus status, String message, List<String> errors) {
+    public static ResponseEntity<Object> Error(HttpStatus status, String message, Map<String, String> errors) {
+        Map<String, String> errorMap = new HashMap<>();
         Map<String, Object> map = new HashMap<String, Object>();
+
+        errors.forEach((fieldName, errorMessage) -> {
+            errorMap.put(fieldName, errorMessage);
+        });
+
         map.put("status", status);
         map.put("message", message);
-        map.put("errors", errors);
+        map.put("errors", errorMap);
 
         return new ResponseEntity<Object>(map, status);
     }

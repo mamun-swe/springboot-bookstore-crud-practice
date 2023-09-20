@@ -1,7 +1,8 @@
 package com.springboot.bookstore.controller;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +39,9 @@ public class CategoryController {
 
             return Response.Success(HttpStatus.OK, "List of categories.", data);
         } catch (Exception e) {
-            List<String> errorsList = Arrays.asList(e.getMessage());
-            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
+            Map<String, String> errors = new HashMap<>();
+            errors.put("server", "Something going wrong.");
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
         }
     }
 
@@ -47,19 +49,13 @@ public class CategoryController {
     @PostMapping()
     ResponseEntity<Object> store(@RequestBody @Valid CategoryDto categoryDto) {
         try {
-            System.out.println(categoryDto.toString());
-            // /** Convert DTO to entity */
-            // Category category = new Category();
-            // category.setName(categoryDto.getName());
-
-            // /** Sotre data */
-            // this.categoryService.createCategory(category);
+            this.categoryService.createCategory(categoryDto);
 
             return Response.Success(HttpStatus.CREATED, "Category created.");
         } catch (Exception e) {
-            System.out.println(e.getLocalizedMessage().toString());
-            List<String> errorsList = Arrays.asList(e.getMessage());
-            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
+            Map<String, String> errors = new HashMap<>();
+            errors.put("server", "Something going wrong.");
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
         }
     }
 
@@ -69,34 +65,36 @@ public class CategoryController {
         try {
             Optional<Category> category = this.categoryService.geCategoryById(id);
             if (!category.isPresent()) {
-                List<String> errorsList = Arrays.asList("Category isn't available.");
-                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errorsList);
+                return Response.Success(HttpStatus.OK, "Category information.", null);
             }
 
             return Response.Success(HttpStatus.OK, "Category information.", category);
         } catch (Exception e) {
-            List<String> errorsList = Arrays.asList(e.getMessage());
-            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
+            Map<String, String> errors = new HashMap<>();
+            errors.put("server", "Something going wrong.");
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
         }
     }
 
     /** Update specific resource */
     @PutMapping("{id}")
     ResponseEntity<Object> update(
-            @RequestBody CategoryDto documents,
+            @Valid @RequestBody CategoryDto documents,
             @PathVariable(name = "id", required = true) Long id) {
         try {
             Optional<Category> category = this.categoryService.geCategoryById(id);
             if (!category.isPresent()) {
-                List<String> errorsList = Arrays.asList("Category isn't available.");
-                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errorsList);
+                Map<String, String> errors = new HashMap<>();
+                errors.put("id", "Category isn't available.");
+                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errors);
             }
 
             this.categoryService.updateCategory(documents, id);
             return Response.Success(HttpStatus.OK, "Category updated.");
         } catch (Exception e) {
-            List<String> errorsList = Arrays.asList(e.getMessage());
-            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
+            Map<String, String> errors = new HashMap<>();
+            errors.put("server", "Something going wrong.");
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
         }
     }
 
@@ -106,15 +104,17 @@ public class CategoryController {
         try {
             Optional<Category> category = this.categoryService.geCategoryById(id);
             if (!category.isPresent()) {
-                List<String> errorsList = Arrays.asList("Category isn't available.");
-                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errorsList);
+                Map<String, String> errors = new HashMap<>();
+                errors.put("id", "Category isn't available.");
+                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errors);
             }
 
             this.categoryService.destroyCategory(id);
             return Response.Success(HttpStatus.OK, "Category deleted.");
         } catch (Exception e) {
-            List<String> errorsList = Arrays.asList(e.getMessage());
-            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Something going wrong.", errorsList);
+            Map<String, String> errors = new HashMap<>();
+            errors.put("server", "Something going wrong.");
+            return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
         }
     }
 }
