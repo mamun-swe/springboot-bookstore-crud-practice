@@ -22,6 +22,7 @@ import com.springboot.bookstore.model.Books;
 import com.springboot.bookstore.model.dtos.BooksDto;
 import com.springboot.bookstore.service.BooksService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -33,9 +34,11 @@ public class BookController {
 
     /** Display the list of resources */
     @GetMapping()
-    ResponseEntity<Object> index() {
+    ResponseEntity<Object> index(HttpServletRequest httpServletRequest) {
         try {
             List<Books> data = this.booksService.getAllBooks();
+
+            System.out.println(httpServletRequest.getAttribute("user"));
 
             return Response.Success(HttpStatus.OK, "List of books.", data);
         } catch (Exception e) {

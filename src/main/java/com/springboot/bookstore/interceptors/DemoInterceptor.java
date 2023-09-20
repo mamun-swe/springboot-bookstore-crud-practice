@@ -13,6 +13,7 @@ public class DemoInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         System.out.println("Pre request handeller.");
+        request.setAttribute("user", "Hi Mamun this is from interceptor.");
         return true;
     }
 
