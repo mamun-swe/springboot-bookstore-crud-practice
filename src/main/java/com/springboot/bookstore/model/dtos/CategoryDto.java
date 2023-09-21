@@ -11,4 +11,9 @@ public class CategoryDto {
     @NotEmpty(message = "The name is required.")
     @NotNull(message = "The name is required.")
     private String name;
+
+    @NotBlank(message = "The description is required.")
+    @NotEmpty(message = "The description is required.")
+    @NotNull(message = "The description is required.")
+    private String description;
 }

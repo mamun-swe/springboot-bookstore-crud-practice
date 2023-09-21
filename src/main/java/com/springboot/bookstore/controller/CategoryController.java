@@ -49,6 +49,15 @@ public class CategoryController {
     @PostMapping()
     ResponseEntity<Object> store(@RequestBody @Valid CategoryDto categoryDto) {
         try {
+            /** Check unique name */
+            Optional<Category> availableCategory = this.categoryService.geCategoryByName(categoryDto.getName());
+            if (availableCategory.isPresent()) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("name", "The name already taken.");
+
+                return Response.Error(HttpStatus.CONFLICT, "Name exist.", errors);
+            }
+
             this.categoryService.createCategory(categoryDto);
 
             return Response.Success(HttpStatus.CREATED, "Category created.");
@@ -82,12 +91,16 @@ public class CategoryController {
             @Valid @RequestBody CategoryDto documents,
             @PathVariable(name = "id", required = true) Long id) {
         try {
+            /** Check availability */
             Optional<Category> category = this.categoryService.geCategoryById(id);
             if (!category.isPresent()) {
                 Map<String, String> errors = new HashMap<>();
                 errors.put("id", "Category isn't available.");
                 return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errors);
             }
+
+            /** Check unique name */
+            
 
             this.categoryService.updateCategory(documents, id);
             return Response.Success(HttpStatus.OK, "Category updated.");

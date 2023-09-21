@@ -30,10 +30,16 @@ public class CategoryService {
         return this.categoryRepository.findById(id);
     }
 
+    /** getting a specific record by name */
+    public Optional<Category> geCategoryByName(String name) {
+        return this.categoryRepository.findOneByName(name);
+    }
+
     /** cerate a specific record */
     public void createCategory(CategoryDto documents) {
         Category category = new Category();
         category.setName(documents.getName());
+        category.setDescription(documents.getDescription());
 
         this.categoryRepository.save(category);
     }
@@ -42,6 +48,7 @@ public class CategoryService {
     public void updateCategory(CategoryDto documents, Long id) {
         Category category = this.categoryRepository.findById(id).get();
         category.setName(documents.getName());
+        category.setDescription(documents.getDescription());
 
         this.categoryRepository.save(category);
     }
