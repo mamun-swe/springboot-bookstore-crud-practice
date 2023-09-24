@@ -29,16 +29,25 @@ public class BooksService {
         return this.booksRepository.findById(id);
     }
 
+    /** getting a specific record by category */
+    public Optional<Books> getBookByCategory(Long id) {
+        return this.booksRepository.findOneByCategory(id);
+    }
+
     /** cerate a specific record */
-    public void createBook(Books documents) {
-        this.booksRepository.save(documents);
+    public void createBook(BooksDto documents) {
+        Books book = new Books();
+        book.setCategory(documents.getCategory());
+        book.setName(documents.getName());
+        this.booksRepository.save(book);
     }
 
     /** update a specific record */
     public void updateBook(BooksDto documents, Long id) {
-        Books books = this.booksRepository.findById(id).get();
-        books.setName(documents.getName());
-        this.booksRepository.save(books);
+        Books book = this.booksRepository.findById(id).get();
+        book.setCategory(documents.getCategory());
+        book.setName(documents.getName());
+        this.booksRepository.save(book);
     }
 
     /** delete a specific record */

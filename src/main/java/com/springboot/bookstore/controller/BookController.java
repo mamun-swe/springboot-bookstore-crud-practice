@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.springboot.bookstore.exception.Response;
 import com.springboot.bookstore.model.Books;
+import com.springboot.bookstore.model.Category;
 import com.springboot.bookstore.model.dtos.BooksDto;
 import com.springboot.bookstore.service.BooksService;
+import com.springboot.bookstore.service.CategoryService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -31,6 +33,8 @@ public class BookController {
 
     @Autowired
     private BooksService booksService;
+    @Autowired
+    private CategoryService categoryService;
 
     /** Display the list of resources */
     @GetMapping()
@@ -52,15 +56,20 @@ public class BookController {
     @PostMapping()
     ResponseEntity<Object> store(@Valid @RequestBody BooksDto booksDto) {
         try {
-            /** Convert Books DTO to entity */
-            Books books = new Books();
-            books.setName(booksDto.getName());
+            /** Check available category */
+            Optional<Category> availableCategory = this.categoryService.geCategoryById(booksDto.getCategory());
+            if (!availableCategory.isPresent()) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("category", "Category isn't available.");
+                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errors);
+            }
 
             /** Sotre data */
-            this.booksService.createBook(books);
+            this.booksService.createBook(booksDto);
 
             return Response.Success(HttpStatus.CREATED, "Book created.");
         } catch (Exception e) {
+            System.out.println(e);
             Map<String, String> errors = new HashMap<>();
             errors.put("server", "Something going wrong.");
             return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
@@ -97,6 +106,14 @@ public class BookController {
             if (!bookData.isPresent()) {
                 Map<String, String> errors = new HashMap<>();
                 errors.put("id", "Book isn't available.");
+                return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errors);
+            }
+
+            /** Check available category */
+            Optional<Category> availableCategory = this.categoryService.geCategoryById(documents.getCategory());
+            if (!availableCategory.isPresent()) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("category", "Category isn't available.");
                 return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errors);
             }
 

@@ -20,6 +20,9 @@ public class Books {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "category", nullable = false)
+    private Long category;
+
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -29,6 +32,14 @@ public class Books {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getCategory() {
+        return category;
+    }
+
+    public void setCategory(Long category) {
+        this.category = category;
     }
 
     public String getName() {

@@ -35,6 +35,11 @@ public class CategoryService {
         return this.categoryRepository.findOneByName(name);
     }
 
+    /** getting a specific record by unique name */
+    public Optional<Category> geCategoryByUniqueName(Long id, String name) {
+        return this.categoryRepository.findOneByNameWhereIdNotEqual(id, name);
+    }
+
     /** cerate a specific record */
     public void createCategory(CategoryDto documents) {
         Category category = new Category();

@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.springboot.bookstore.exception.Response;
+import com.springboot.bookstore.model.Books;
 import com.springboot.bookstore.model.Category;
 import com.springboot.bookstore.model.dtos.CategoryDto;
+import com.springboot.bookstore.service.BooksService;
 import com.springboot.bookstore.service.CategoryService;
 
 import jakarta.validation.Valid;
@@ -30,6 +32,9 @@ public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private BooksService booksService;
 
     /** Display the list of resources */
     @GetMapping()
@@ -100,7 +105,13 @@ public class CategoryController {
             }
 
             /** Check unique name */
-            
+            Optional<Category> availableCategory = this.categoryService.geCategoryByUniqueName(id, documents.getName());
+            if (availableCategory.isPresent()) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("name", "The name already taken.");
+
+                return Response.Error(HttpStatus.CONFLICT, "Name exist.", errors);
+            }
 
             this.categoryService.updateCategory(documents, id);
             return Response.Success(HttpStatus.OK, "Category updated.");
@@ -115,6 +126,7 @@ public class CategoryController {
     @DeleteMapping("{id}")
     ResponseEntity<Object> destroy(@PathVariable(name = "id", required = true) Long id) {
         try {
+            /** Check available category */
             Optional<Category> category = this.categoryService.geCategoryById(id);
             if (!category.isPresent()) {
                 Map<String, String> errors = new HashMap<>();
@@ -122,9 +134,18 @@ public class CategoryController {
                 return Response.Error(HttpStatus.NOT_FOUND, "Not found.", errors);
             }
 
+            /** Check category already available on books */
+            Optional<Books> availableBook = this.booksService.getBookByCategory(id);
+            if (availableBook.isPresent()) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("category", "This category already associate with a book.");
+                return Response.Error(HttpStatus.BAD_REQUEST, "Available.", errors);
+            }
+
             this.categoryService.destroyCategory(id);
             return Response.Success(HttpStatus.OK, "Category deleted.");
         } catch (Exception e) {
+            System.out.println(e);
             Map<String, String> errors = new HashMap<>();
             errors.put("server", "Something going wrong.");
             return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
