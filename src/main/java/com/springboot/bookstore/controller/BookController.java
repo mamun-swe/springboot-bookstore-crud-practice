@@ -69,7 +69,6 @@ public class BookController {
 
             return Response.Success(HttpStatus.CREATED, "Book created.");
         } catch (Exception e) {
-            System.out.println(e);
             Map<String, String> errors = new HashMap<>();
             errors.put("server", "Something going wrong.");
             return Response.Error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.", errors);
